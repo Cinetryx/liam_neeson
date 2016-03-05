@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="gazebo_gui" 
+        default="false" />
+    <arg name="update_gripper"
+        default="true" />
+
+    <include file="$(find baxter_gazebo)/launch/baxter_world.launch">
+        <arg name="gui" 
+            value="$(arg gazebo_gui)"/>
+    </include>
+
+    <node name="baxter_setup"
+        pkg="liam_neeson" 
+        type="timed_roslaunch.sh" 
+        args="30 liam_neeson baxter_setup.launch update_gripper:=$(arg update_gripper)" 
+        output="screen"/>
+
+</launch>

@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<launch>
+
+    <arg name="update_gripper"
+        default="true" />
+
+
+    <!-- Setup the grippers: -->
+    <node if="$(arg update_gripper)"
+        name="gripper_modifier"
+        pkg="liam_neeson" 
+        type="replace_grippers.sh" 
+        output="screen" 
+        respawn="false"/>    
+
+    <node name="enable_robot"
+        pkg="liam_neeson" 
+        type="enable_baxter.py"
+        output="screen"/>
+
+    <node name="joint_trajectory_action_server" 
+        pkg="baxter_interface" 
+        type="joint_trajectory_action_server.py" 
+        output="screen"/>
+
+<!--     <node name="delay_joint_trajectory_action_server" 
+        pkg="liam_neeson" 
+        type="timed_rosrun.sh" 
+        args="15 baxter_interface joint_trajectory_action_server.py"
+        output="screen"/> -->
+
+   <group>
+        <remap from="joint_states" to="/robot/joint_states"/>
+
+        <include file="$(find baxter_moveit_config)/launch/move_group.launch">
+            <arg name="allow_trajectory_execution" value="true"/>
+        </include>
+
+        <include file="$(find baxter_moveit_config)/launch/planning_context.launch">
+            <arg name="load_robot_description" value="true"/>
+            <arg name="right_electric_gripper" value="true"/>
+            <arg name="left_electric_gripper" value="true"/>
+        </include>
+   </group>
+
+    
+
+   <!--  <node name="delay_moveit"
+        pkg="liam_neeson" 
+        type="timed_roslaunch.sh" 
+        args="30 baxter_moveit_config demo_baxter.launch right_electric_gripper:=false left_electric_gripper:=false"  
+        output="screen"/> -->
+
+<!--     <node name="delay_enable_robot"
+        pkg="liam_neeson" 
+        type="timed_rosrun.sh" 
+        args="15 baxter_tools enable_robot.py -e" 
+        output="screen"/>
+ -->    
+</launch>

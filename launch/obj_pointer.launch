@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- BE SURE TO SET ENV VARIABLES FOR BAXTER BEFOREHAND -->
+    <!-- simdomo/sofyasim or realdomo/sofyareal; srcskel -->
+
+    <arg name="gazebo_sim" default="false" /> <!-- Set true if simulating robot. -->
+    <arg name="gazebo_gui" default="false" />
+
+    <arg name="update_gripper" default="true" />
+
+    <arg name="bag" default="false" />
+    <arg name="openni" default="false" />
+    <arg name="rviz" default="false" />
+    <arg name="bag_file" default="depth_registered1.bag" />
+    <arg name="camera_trans" default="1. 0. 0. 0. 0. 0."/>
+    
+
+    <!-- <param name="camera_info_url" value="$(find liam_neeson)/ost.yaml" -->
+
+    <node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="$(arg camera_trans) base camera_link1 1000" />
+
+<!--     <node pkg="tf2_ros" type="static_transform_publisher" name="camera_top_base_link_1" args="1.28 0.10 0.19 0 0 0 1 base camera_link2" /> -->
+
+    <include if="$(arg gazebo_sim)"
+        file="$(find liam_neeson)/launch/baxter_sim.launch">
+        <arg name="gazebo_gui" value="$(arg gazebo_gui)" />
+        <arg name="update_gripper" value="$(arg update_gripper)" />
+    </include>
+
+    <include unless="$(arg gazebo_sim)"
+        file="$(find liam_neeson)/launch/baxter_setup.launch">
+        <arg name="update_gripper" value="$(arg update_gripper)" />
+    </include>
+
+
+    <include if="$(arg openni)" 
+        file="$(find openni_launch)/launch/openni.launch" >
+        <arg name="depth_registration" value="true" />
+    </include>
+
+    <node if="$(arg rviz)" 
+        pkg="rviz" 
+        type="rviz" 
+        output="screen" 
+        name="rviz" 
+        args="-d $(find pow_analyzer)/launch/pow_rviz.vcg"/>
+
+    <group if="$(arg bag)">
+        <node pkg="rosbag" type="play" name="rosbag" args="-l $(find liam_neeson)/bag/$(arg bag_file)"/>
+       <!--  <node name="extract" pkg="image_view" type="extract_images" respawn="false" output="screen" cwd="$(find test_cv)/bag/">
+            <remap from="image" to="/camera/rgb/image"/>
+        </node> -->
+    </group>
+</launch>

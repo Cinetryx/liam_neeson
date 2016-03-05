@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="config" default="true"/>
+  <arg name="rviz_config" default="$(find baxter_moveit_config)/launch/moveit.rviz" />
+
+  <include file="$(find baxter_moveit_config)/launch/moveit_rviz.launch">
+    <arg name="config" value="$(arg config)" />
+    <arg name="rviz_config" value="$(arg rviz_config)" />
+  </include>
+</launch>
