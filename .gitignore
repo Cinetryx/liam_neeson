@@ -3,6 +3,7 @@
 .*
 !/.gitignore
 
+bag/
 
 # Compiled source #
 ###################
