@@ -5,7 +5,7 @@ import numpy as np
 import sys
 from copy import copy
 
-filename = "/home/hongalan/skelws/src/opencv-haar-classifier-training/negative_images/20160210_155139.jpg"
+filename = "/home/hongalan/skelws/src/opencv-haar-classifier-training/maruchan_training_data/Positiv/20160225_165224.jpg"
 
 win4_name = "Parameters"
 
@@ -17,7 +17,7 @@ def setup_param():
     cv2.createTrackbar('param_k',win4_name,20,300,param_update)
     cv2.createTrackbar('param_l',win4_name,100,300,param_update)
     cv2.createTrackbar('param_m',win4_name,0,1,param_update)
-    cv2.createTrackbar('param_n',win4_name,10,10,param_update)
+    cv2.createTrackbar('param_n',win4_name,10,20,param_update)
     cv2.resizeWindow(win4_name,640,240)
     cv2.moveWindow(win4_name,1200,850)
 
@@ -34,7 +34,6 @@ if not cascade.empty():
     print "Let's get started!"
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # gray = cv2.equalizeHist(gray)
-
     setup_param()
 
     while True:
@@ -51,8 +50,8 @@ if not cascade.empty():
         input_img = res = cv2.resize(input_img,None,fx=n, fy=n, interpolation = cv2.INTER_AREA)
         rects = cascade.detectMultiScale(input_img, scaleFactor=i, minNeighbors=j, minSize=(k, k), maxSize=(l, l))
             # cv2.CASCADE_SCALE_IMAGE)
-        
-        if not(len(rects) == 1):
+
+        if (len(rects) > 0): #not(len(rects) == 1)
             for x1, y1, x2, y2 in rects:
                 cv2.rectangle(input_img, (x1, y1), (x1+x2, y1+y2), (255, 0, 0), 2)
 

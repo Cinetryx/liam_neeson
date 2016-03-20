@@ -5,7 +5,7 @@ import baxter_interface
 import roslib; roslib.load_manifest("moveit_python")
 from moveit_python import PlanningSceneInterface, MoveGroupInterface
 from moveit_python.geometry import rotate_pose_msg_by_euler_angles
-from geometry_msgs.msg import PoseStamped, PoseArray, TransformStamped, Point
+from geometry_msgs.msg import Pose, PoseArray, TransformStamped, Point
 import moveit_commander as mc
 from scale_trajectory import scale_trajectory_speed as scale_traj
 import math
@@ -22,10 +22,12 @@ class Controller:
         self.robot = mc.RobotCommander()
         self.scene = mc.PlanningSceneInterface()
         self.arm = mc.MoveGroupCommander(name)
-        self.camera_trans=[]
+        self.camera_trans = np.array([[0,-1,0,0],[0,0,-1,0],[1,0,0,0],[0,0,0,1]]) #default value
         self.get_camera_trans()
-        self.sub=[]
-
+        self.sub = []
+        self.s0_offset = +0.75
+        self.s0_ref = -self.s0_offset
+        self.s1_ref = 0.0
 
     def get_camera_trans(self):
         transformer = tf.Transformer()
@@ -54,12 +56,50 @@ class Controller:
 
     def get_obj_coord(self,xyz):
         pt=tf.transformations.compose_matrix(translate=(xyz[0],xyz[1],xyz[2]))
-        obj_transform=np.dot(pt,self.camera_trans)
+        obj_transform=np.dot(self.camera_trans,pt)
         pt_base=tf.transformations.decompose_matrix(obj_transform)
         translation = pt_base[3]
         # quaternion=tf.transformations.quaternion_from_euler(euler[0],euler[1],euler[2])
-        # print translation
+
         return (translation)
+
+    def update_ref_ang(self,coord):
+        #returns latitude and longitude (centered at base) given xyz coord of object (ref coord is sphere origin).
+        s0_ref = math.atan2(coord[1],coord[0]) - self.s0_offset
+        s1_ref = -math.atan2(coord[2],coord[0])
+        self.s0_ref = np.sign(s0_ref) * min(1.6,abs(s0_ref))
+        self.s1_ref = np.sign(s1_ref) * min(1.0,abs(s1_ref))
+
+
+    def move(self,tar_pose,speed=0):
+        # left_arm.set_planning_time(0.25)
+        print "Proposed Target Joints: ", tar_pose
+        print "Current Joints: ", self.arm.get_current_joint_values()
+        self.arm.set_joint_value_target(tar_pose)
+        plan = self.arm.plan(tar_pose)
+        if speed>0:
+            plan=scale_traj(plan,speed)
+        return self.arm.execute(plan,wait=False)
+
+    def point(self,xyz,speed=0):
+        base_xyz=self.get_obj_coord(xyz)
+        print "Object in Robot Frame: ", base_xyz
+        self.update_ref_ang(base_xyz)
+        if self.move([self.s0_ref,self.s1_ref,0,0,0,0,0],speed=speed):
+            print '===== Moved'
+
+    def initialize(self):
+        # neutral_pos = dict(zip(jts_left,[0.0, -0.55, 0.0, 0.75, 0.0, 1.26, 0.0]))
+        # jts_left = self.arm.get_active_joints()
+        # initial_pos=[-0.08, -0.89, -0.31, 1.34, -1.98, 0.60, -0.79]
+        # initial_pos=[-0.54, -0.67, 0.18, 1.18, -2.5, 0.65, 2.5]
+        initial_pos=[-self.s0_offset,0,0,0,0,0,0]
+        self.arm.set_joint_value_target(initial_pos)
+        plan = self.arm.plan(initial_pos)
+        if (self.arm.execute(plan,wait=True)):    #Is blocking in order to ensure it reaches that position
+            print '===== Arm Initialized'
+
+
     def get_curr_pose(self):
         #puts current pose in 6-element list format
         pose = self.arm.get_current_pose()
@@ -75,38 +115,6 @@ class Controller:
         pose = [sum(x) for x in zip(dpose, shift, pose)]
         return pose
 
-    def calc_sphere(self,r,coord):
-        #returns 6-element list of xyz position and rpy angles on spherical surface (of radius r) given xyz coord of object (ref coord is sphere origin).
-        scale = r / math.sqrt((coord[0]**2) + (coord[1]**2) + (coord[2]**2))
-
-        #this is essentially a problem of similar triangles. Just normalize the coord to r.
-        s_coord = [x*scale for x in coord]
-        #calculating rpy angles using pitch and yaw as latitude and longitude
-        s_angle = [0]*3
-        s_angle[1] = math.atan2(coord[0],coord[2])
-        s_angle[2] = math.atan2(coord[1],coord[0])
-        return (s_coord+s_angle)
-
-    def point(self,xyz,damp=False,speed=1.5):
-        # for r in (1,0.85,0.7):
-        r=0.8
-        base_xyz=self.get_obj_coord(xyz)
-        print "Object Coord: ", base_xyz
-        pose=self.calc_sphere(r,base_xyz)
-        if self.move(pose,damp=damp,speed=speed):
-            print '===== Moved'
-            return
-
-    def initialize(self):
-        # neutral_pos = dict(zip(jts_left,[0.0, -0.55, 0.0, 0.75, 0.0, 1.26, 0.0]))
-        # jts_left = self.arm.get_active_joints()
-        # initial_pos=[-0.08, -0.89, -0.31, 1.34, -1.98, 0.60, -0.79]
-        initial_pos=[-0.54, -0.67, 0.18, 1.18, -2.5, 0.65, 2.5]
-        self.arm.set_joint_value_target(initial_pos)
-        plan = self.arm.plan(initial_pos)
-        if (self.arm.execute(plan,wait=True)):    #Is blocking in order to ensure it reaches that position
-            print '===== Arm Initialized'
-
     def damp(self,tar_pose):
         pos_thresh=0.1      #max safe increment values
         ang_thresh=3.14/6
@@ -121,20 +129,6 @@ class Controller:
         if (max_ang_diff>ang_thresh):
             new_pose[3:]=((new_pose[3:]-curr_pose[3:])*(ang_thresh/max_ang_diff))+curr_pose[3:]
         return new_pose.tolist()
-
-    def move(self,tar_pose,damp=False,speed=0):
-        # left_arm.set_planning_time(0.25)
-        print "Proposed Target Pose", tar_pose
-        if damp:
-            tar_pose=self.damp(tar_pose)
-            print "Damped Target Pose: ", tar_pose
-            # (tar_pose,fraction)=compute_cartesian_path(tar_pose, eef_step, jump_threshold, avoid_collisions = False)
-        print "Current Pose", self.get_curr_pose()
-        self.arm.set_pose_target(tar_pose)
-        plan = self.arm.plan()
-        if speed>0:
-            plan=scale_traj(plan,speed)
-        return self.arm.execute(plan,wait=True)
 
     def test(self):
         self.initialize()
@@ -168,14 +162,17 @@ def main():
     left_arm.initialize()
     print '===== Initialization Complete\n'
 
-    print '\n_=====OBJ_POINTER: Initializing Subscriber\n'
+    print '\n=====OBJ_POINTER: Initializing Subscriber\n'
     # left_arm.init_subscriber()
-    rate = rospy.Rate(1)
+    
+    rate=rospy.Rate(1)
     while not rospy.is_shutdown():
         coord=rospy.wait_for_message("/obj_position", Point, timeout=None)
         coord=[coord.x,coord.y,coord.z]
-        left_arm.point(coord,damp=True,speed=1.5)
+        print "Object in Camera Frame: ",coord
+        left_arm.point(coord)
         rate.sleep()
+    # left_arm.point([1,0,1])
 
 
 if __name__=='__main__':

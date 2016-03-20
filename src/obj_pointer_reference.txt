@@ -1,0 +1,48 @@
+robot.get_group_names()
+left_arm.get_end_effector_link()
+left_arm.set_end_effector_link("left_gripper")
+jts_left= left_arm.get_active_joints()
+jts_left = ['left_s0', 'left_s1', 'left_e0', 'left_e1', 'left_w0', 'left_w1', 'left_w2']
+bi_jts_left = bi_left_arm.joint_names()
+bi_jts_left = ['left_e0', 'left_e1', 'left_s0', 'left_s1', 'left_w0', 'left_w1', 'left_w2']1
+
+left_arm.get_current_joint_values()
+temp= bi_left_arm.joint_angles()
+temp.values()
+left_arm.get_current_pose()
+left_arm.get_current_rpy()
+
+bi_left_arm = baxter_interface.limb.Limb("left")
+bi_left_arm.move_to_neutral()
+
+left_arm.set_goal_position_tolerance(0.1)
+left_arm.set_planning_time(0.1)
+
+pose = initPose
+left_arm.set_pose_target(pose)
+
+jts = dict(zip(jts_left,[1.45, -0.69, -0.61, -0.5, 1.12, 0.20, 0]))
+left_arm.set_joint_value_target(jts)
+
+xyz=[0.9,0.8,0.5]
+left_arm.set_position_target(xyz)
+
+plan = left_arm.plan()
+# plan = scale_traj(plan, 0.5)
+left_arm.execute(plan,wait=False)
+left_arm.clear_pose_targets()
+
+left_arm.go(wait=False)
+
+
+# bi_leftgripper = baxter_interface.Gripper('left')
+# jts_both = ['left_e0', 'left_e1', 'left_s0', 'left_s1', 'left_w0', 'left_w1', 'left_w2', 'right_e0', 'right_e1', 'right_s0', 'right_s1', 'right_w0', 'right_w1', 'right_w2']
+# jts_right = ['right_e0', 'right_e1', 'right_s0', 'right_s1', 'right_w0', 'right_w1', 'right_w2']
+# jts_left = ['left_e0', 'left_e1', 'left_s0', 'left_s1', 'left_w0', 'left_w1', 'left_w2']
+
+
+# print left_arm.get_current_pose()
+    #     x: 0.908972329586
+    #     y: 1.10397557792
+    #     z: 0.320976000004
+        # so radius of 1 offset by +0.1y -0.1x should be safe upper bound

@@ -29,7 +29,12 @@
         args="15 baxter_interface joint_trajectory_action_server.py"
         output="screen"/> -->
 
-   <group>
+    <node name="joint_states_remapper" 
+        pkg="liam_neeson" 
+        type="translator.py"
+        output="screen"/>
+
+    <group>
         <remap from="joint_states" to="/robot/joint_states"/>
 
         <include file="$(find baxter_moveit_config)/launch/move_group.launch">

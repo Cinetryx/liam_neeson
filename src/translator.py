@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+#This node just takes every 'robot/joint_states message and spits it back out under /joint_states topic. Remapping in the launch file wasn't working.
+
 import rospy
 from sensor_msgs.msg import JointState
 
@@ -13,6 +15,7 @@ class translator:
 if __name__ == '__main__':
     try:
         rospy.init_node('my_hacky_translator')
+        print "Initialized 'robot/joint_states' --> '/joint_states' remapping node"
         this=translator()
         rospy.spin()
     except rospy.ROSInterruptException:

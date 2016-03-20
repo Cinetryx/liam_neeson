@@ -4,6 +4,8 @@
 !/.gitignore
 
 bag/
+src/*test*
+src/*archived*
 
 # Compiled source #
 ###################

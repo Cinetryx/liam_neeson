@@ -6,18 +6,20 @@ from geometry_msgs.msg import Point
 
 class object:
     def __init__(self):
-        self.pub = rospy.Publisher('/obj_position', Point, queue_size=10)
+        self.pub = rospy.Publisher('/obj_position', Point, queue_size=2)
         rospy.sleep(2)
-        self.freq=10
+        self.freq=5.0
     def go_nuts(self):
         i=0.0
+        rate=rospy.Rate(self.freq)
         while not rospy.is_shutdown():
-            rate=rospy.Rate(self.freq)
             point_msg=Point()
-            point_msg.x=math.sin(2*math.pi*(i/self.freq))
-            print point_msg.x
-            point_msg.y=point_msg.x
-            point_msg.z=point_msg.x
+            fig1=math.sin(2*math.pi*(i/self.freq))
+            fig2=math.cos(2*math.pi*(i/self.freq))
+            point_msg.x=2
+            point_msg.y=fig2+1
+            point_msg.z=fig1
+            print fig1
             self.pub.publish(point_msg)
             i+=0.1
             if i>self.freq:
