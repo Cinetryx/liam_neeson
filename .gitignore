@@ -6,6 +6,7 @@
 bag/
 src/*test*
 src/*archived*
+src/*temp*
 
 # Compiled source #
 ###################
