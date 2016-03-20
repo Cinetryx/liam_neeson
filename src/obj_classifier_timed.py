@@ -78,6 +78,7 @@ class Classifier:
         else:
             print "seg_search: Object lost"
             return np.empty((0,4))
+            
     def get_feed(self):
         # data = rospy.wait_for_message("/camera/rgb/image_raw", Image, timeout=None)
         self.subscriber.update_feed()
@@ -260,17 +261,18 @@ def cleanup():
     print "Have a nice day."
     cv2.destroyAllWindows()
 
-def main():
+def demo():
     rospy.init_node("obj_classifier")
     rospy.on_shutdown(cleanup)
     # cv2.startWindowThread()
-    cascade = cv2.CascadeClassifier("/home/hongalan/skelws/src/opencv-haar-classifier-training/trained_classifiers/maruchan_asus15.xml")
-    ref_filename = "/home/hongalan/skelws/src/opencv-haar-classifier-training/maruchan_training_data/positive_images/maruchan_train2.avi_9765_0000_0266_0148_0143_0148.png"
-    if len(sys.argv)>1:
-        cascade = cv2.CascadeClassifier(sys.argv[1])
-    win1_name='Feed'
-    win2_name='Filtered'
-    ref_img = cv2.imread(ref_filename,1)
+    # cascade = cv2.CascadeClassifier("/home/hongalan/skelws/src/opencv-haar-classifier-training/trained_classifiers/maruchan_asus15.xml")
+    # ref_filename = "/home/hongalan/skelws/src/opencv-haar-classifier-training/maruchan_training_data/positive_images/maruchan_train2.avi_9765_0000_0266_0148_0143_0148.png"
+    if len(sys.argv)>2:
+        ref_img = cv2.imread(sys.argv[1],1)
+        cascade = cv2.CascadeClassifier(sys.argv[2])
+    else:
+        print "obj_dregistered node requires 2 arguments: ref image and classifier"
+        return
     if cascade.empty():
         print "Classifier not found"
         return
@@ -287,6 +289,6 @@ def main():
 
 if __name__=='__main__':
     try:
-        main()
+        demo()
     except rospy.ROSInterruptException:
         cleanup()

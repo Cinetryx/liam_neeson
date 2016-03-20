@@ -5,6 +5,7 @@
 
     <arg name="gazebo_sim" default="false" /> <!-- Set true if simulating robot. -->
     <arg name="gazebo_gui" default="false" />
+    <arg name="rviz" default="false" />
 
     <arg name="update_gripper" default="true" />
 
@@ -12,42 +13,52 @@
     <arg name="openni" default="false" />
     <arg name="bag_file" default="depth_registered1.bag" />
     <arg name="camera_trans" default="1. 0. 0. -0.5, 0.5, -0.5, 0.5"/> <!-- Adjusted from camera frame -->
+    <arg name="classifier_xml1" default="maruchan_asus15.xml"/>
+    <arg name="classifier_img1" default="maruchan_sample.png"/>
+
 
     <!-- <param name="camera_info_url" value="$(find liam_neeson)/ost.yaml" -->
 
     <node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="$(arg camera_trans) base camera_link1 1000" />
 
-    <include if="$(arg gazebo_sim)"
-        file="$(find liam_neeson)/launch/baxter_sim.launch">
-        <arg name="gazebo_gui" value="$(arg gazebo_gui)" />
-        <arg name="update_gripper" value="$(arg update_gripper)" />
-    </include>
+    <group if="$(arg gazebo_sim)">
+        <include
+            file="$(find liam_neeson)/launch/baxter_sim.launch">
+            <arg name="gazebo_gui" value="$(arg gazebo_gui)" />
+            <arg name="update_gripper" value="$(arg update_gripper)" />
+        </include>
+        <!-- Start remaining nodes manually once simulation is completely loaded -->
+    </group>
 
-    <include unless="$(arg gazebo_sim)"
-        file="$(find liam_neeson)/launch/baxter_setup.launch">
-        <arg name="update_gripper" value="$(arg update_gripper)" />
-    </include>
+    <group unless="$(arg gazebo_sim)">
+        <include
+            file="$(find liam_neeson)/launch/baxter_setup.launch">
+            <arg name="update_gripper" value="$(arg update_gripper)" />
+        </include>
 
+        <include if="$(arg rviz)"
+            file="$(find liam_neeson)/launch/baxter_rviz.launch">
+        </include>
+
+        <node pkg="liam_neeson" 
+            type="demo_obj_pointer.py" 
+            output="screen" 
+            name="demo_obj_pointer"/>
+
+        <node pkg="liam_neeson"
+            type="obj_dregistered.py"
+            output="screen"
+            name="obj_dregistered"
+            args="$(find liam_neeson)/src/classifier_data/$(arg classifier_img1) $(find liam_neeson)/src/classifier_data/$(arg classifier_xml1)"/>
+    </group>
 
     <include if="$(arg openni)" 
         file="$(find openni_launch)/launch/openni.launch" >
         <arg name="depth_registration" value="true" />
     </include>
 
-    <node pkg="liam_neeson" 
-        type="demo_obj_pointer.py" 
-        output="screen" 
-        name="demo_obj_pointer"/>
 
-<!--     <node pkg="liam_neeson"
-        type="obj_dregistered.py"
-        output="screen"
-        name="obj_dregistered" -->
+    <node if="$(arg bag)"
+        pkg="rosbag" type="play" name="rosbag" args="-l $(find liam_neeson)/bag/$(arg bag_file)"/>
 
-    <group if="$(arg bag)">
-        <node pkg="rosbag" type="play" name="rosbag" args="-l $(find liam_neeson)/bag/$(arg bag_file)"/>
-       <!--  <node name="extract" pkg="image_view" type="extract_images" respawn="false" output="screen" cwd="$(find test_cv)/bag/">
-            <remap from="image" to="/camera/rgb/image"/>
-        </node> -->
-    </group>
 </launch>

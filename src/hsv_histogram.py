@@ -238,8 +238,8 @@ def demo():
 
 
     key = cv2.waitKey(0) & 0xFF
-def main():
-    demo()
+# def main():
+#     demo()
     # ref_filename = "/home/hongalan/skelws/src/opencv-haar-classifier-training/maruchan_training_data/positive_images/maruchan_train2.avi_9765_0000_0266_0148_0143_0148.png"
     # test1_filename = "/home/hongalan/skelws/src/opencv-haar-classifier-training/maruchan_training_data/positive_images/maruchan_train2.avi_16673_0000_0209_0133_0217_0222.png"
     # test2_filename = "/home/hongalan/skelws/src/opencv-haar-classifier-training/negative_images/20160210_155130.jpg"
@@ -263,4 +263,7 @@ def main():
 
 
 if __name__=='__main__':
-    main()
+    try:
+        demo()
+    except rospy.ROSInterruptException:
+        pass

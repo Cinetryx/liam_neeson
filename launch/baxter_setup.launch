@@ -5,7 +5,7 @@
         default="true" />
 
 
-    <!-- Setup the grippers: -->
+    <!-- Set up the grippers: -->
     <node if="$(arg update_gripper)"
         name="gripper_modifier"
         pkg="liam_neeson" 

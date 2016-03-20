@@ -148,11 +148,14 @@ def main():
     rospy.init_node("obj_dregistered")
     rospy.on_shutdown(cleanup)
     
-    cascade = cv2.CascadeClassifier("/home/hongalan/skelws/src/opencv-haar-classifier-training/trained_classifiers/maruchan_asus15.xml")
-    ref_filename = "/home/hongalan/skelws/src/opencv-haar-classifier-training/maruchan_training_data/positive_images/maruchan_train2.avi_9765_0000_0266_0148_0143_0148.png"
-    if len(sys.argv)>1:
-        cascade = cv2.CascadeClassifier(sys.argv[1])
-    ref_img = cv2.imread(ref_filename,1)
+    # cascade = cv2.CascadeClassifier("/home/hongalan/skelws/src/opencv-haar-classifier-training/trained_classifiers/maruchan_asus15.xml")
+    # ref_filename = "/home/hongalan/skelws/src/opencv-haar-classifier-training/maruchan_training_data/positive_images/maruchan_train2.avi_9765_0000_0266_0148_0143_0148.png"
+    if len(sys.argv)>2:
+        ref_img = cv2.imread(sys.argv[1],1)
+        cascade = cv2.CascadeClassifier(sys.argv[2])
+    else:
+        print "=====obj_dregistered node requires 2 arguments: ref image and classifier"
+        return
     if cascade.empty():
         print "Classifier not found"
         return
