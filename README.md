@@ -14,21 +14,6 @@ Table of Contents
 5. Ongoing Development
 ~~~
 
-
-replace grippers
-    baxter_description/urdf/
-
-obj_pointer.launch
-    arguments:
-    contents of launch file and purposes:
-    relevant nodes:
-        
-
-
-    topics of interest:
-        /obj_position
-
-
 ### 1. Package Description
 
 The liam_neeson package combines an [ASUS Xtion Pro](https://www.asus.com/3D-Sensor/Xtion_PRO/) camera (or equivalent, e.g. Kinect) and [Baxter robot](http://www.rethinkrobotics.com/baxter/) to visually track and interact with a pre-determined object.
@@ -231,5 +216,16 @@ In order to successfully run the launch files, you must have the following sets 
   
 
 
-<!-- #### 5. Useful Resources
- -->
+### 5. Ongoing Development
+
+*as of March 19, 2016*
+
+-Implementing object tracking, to much more quickly determine position of object once its initial position is determined.
+
+-Velocity control of robot for more continuous operation
+
+-Interactive user interface (including voice commands)
+
+-Include set of trained classifiers and reference images for variety of objects
+
+-Determine camera position and orientation relative to robot through transforms to a common object.
