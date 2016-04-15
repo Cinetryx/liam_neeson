@@ -14,22 +14,23 @@ class Subscriber:
         self.depth_switch = 0
         self.depth_flag = 0
 
-        self.sub_rgb = rospy.Subscriber("/camera/rgb/image_raw", Image, self.callback_rgb, queue_size=5)
-        self.sub_depth = rospy.Subscriber("/camera/depth_registered/hw_registered/image_rect", Image, self.callback_depth, queue_size=5)
-        rospy.sleep(1)
+        self.sub_rgb = rospy.Subscriber("/camera/rgb/image_raw", Image, self.callback_rgb, queue_size=1)
+        self.sub_depth = rospy.Subscriber("/camera/depth_registered/hw_registered/image_rect", Image, self.callback_depth, queue_size=1)
+        # rospy.sleep(1)
 
     def callback_rgb(self,data):    # more intensive than using wait_for_message, but necessary to keep camera running
-        
+        # rospy.loginfo("RGB received")
         if self.rgb_switch == 0:
             pass
         else:
             # Use cv_bridge() to convert the ROS image to OpenCV format
-            # frame = self.cvbridge.imgmsg_to_cv2(data, "bgr8")
+            # frame = self.imgmsg_to_cv2.cvbridge(data, "bgr8")
             # frame = np.array(frame, dtype=np.uint8)
             self.rgb_img=data
             self.rgb_flag = 0
 
-    def callback_depth(self,data):    
+    def callback_depth(self,data): 
+        # rospy.loginfo("Depth recieved")   
         if self.depth_switch == 0:
             pass
         else:
@@ -39,24 +40,29 @@ class Subscriber:
             self.depth_flag = 0
 
     def update_feed(self):
+        # start = rospy.Time.now()
+
         #update stored rgb_img and depth_img
         self.depth_flag = self.depth_switch = 1
         self.rgb_flag = self.rgb_switch = 1
 
         #turn off both callbacks once they have each been called at least once
         #ensures the rgb and depth images match up
-        while ((self.depth_flag == 1) | (self.rgb_flag == 1)):
+        while (not rospy.is_shutdown()) & (((self.depth_flag == 1) | (self.rgb_flag == 1))):
             pass
         self.depth_switch = self.rgb_switch = 0
+        # rospy.loginfo("===UPDATE_FEED: Elapsed time: %f", (rospy.Time.now() - start).to_sec())
 
         
 def main():
     rospy.init_node("obj_camera_subscriber")
     subscriber = Subscriber()
     rate = rospy.Rate(2) #rgb/image_raw publishes ~10hz, /camera/depth_registered/hw_registered/image_rect publishes ~30hz
+    # rospy.spin()
     while not rospy.is_shutdown():
-        subscriber.update_feed()
+        # subscriber.update_feed()
         print "== Subscriber: Stored feed updated"
+        print len(subscriber.depth_img)
         rate.sleep()
     
 

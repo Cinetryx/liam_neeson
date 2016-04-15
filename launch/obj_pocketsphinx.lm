@@ -1,0 +1,67 @@
+Language model created by QuickLM on Fri Apr  8 23:17:09 EDT 2016
+Copyright (c) 1996-2010 Carnegie Mellon University and Alexander I. Rudnicky
+
+The model is in standard ARPA format, designed by Doug Paul while he was at MITRE.
+
+The code that was used to produce this language model is available in Open Source.
+Please visit http://www.speech.cs.cmu.edu/tools/ for more information
+
+The (fixed) discount mass is 0.5. The backoffs are computed using the ratio method.
+This model based on a corpus of 6 sentences and 12 words
+
+\data\
+ngram 1=12
+ngram 2=17
+ngram 3=15
+
+\1-grams:
+-0.9853 </s> -0.3010
+-0.9853 <s> -0.2366
+-0.9853 BAXTER -0.2188
+-1.7634 COFFEE -0.2536
+-1.7634 DISPLAY -0.2536
+-1.2863 FIND -0.2780
+-1.7634 FRUIT -0.2536
+-1.7634 GOOD -0.2935
+-1.7634 HELLO -0.2536
+-1.7634 JOB -0.2536
+-1.7634 LUNCH -0.2536
+-1.7634 OPEN -0.2935
+
+\2-grams:
+-0.4771 <s> BAXTER -0.1249
+-1.0792 <s> GOOD 0.0000
+-1.0792 <s> HELLO 0.0000
+-0.7782 BAXTER </s> -0.3010
+-0.6021 BAXTER FIND 0.0000
+-1.0792 BAXTER OPEN 0.0000
+-0.3010 COFFEE </s> -0.3010
+-0.3010 DISPLAY </s> -0.3010
+-0.7782 FIND COFFEE 0.0000
+-0.7782 FIND FRUIT 0.0000
+-0.7782 FIND LUNCH 0.0000
+-0.3010 FRUIT </s> -0.3010
+-0.3010 GOOD JOB 0.0000
+-0.3010 HELLO BAXTER -0.2218
+-0.3010 JOB BAXTER -0.2218
+-0.3010 LUNCH </s> -0.3010
+-0.3010 OPEN DISPLAY 0.0000
+
+\3-grams:
+-0.4260 <s> BAXTER FIND
+-0.9031 <s> BAXTER OPEN
+-0.3010 <s> GOOD JOB
+-0.3010 <s> HELLO BAXTER
+-0.7782 BAXTER FIND COFFEE
+-0.7782 BAXTER FIND FRUIT
+-0.7782 BAXTER FIND LUNCH
+-0.3010 BAXTER OPEN DISPLAY
+-0.3010 FIND COFFEE </s>
+-0.3010 FIND FRUIT </s>
+-0.3010 FIND LUNCH </s>
+-0.3010 GOOD JOB BAXTER
+-0.3010 HELLO BAXTER </s>
+-0.3010 JOB BAXTER </s>
+-0.3010 OPEN DISPLAY </s>
+
+\end\

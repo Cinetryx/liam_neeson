@@ -13,10 +13,10 @@
         output="screen" 
         respawn="false"/>    
 
-    <node name="enable_robot"
+<!--     <node name="enable_robot"
         pkg="liam_neeson" 
         type="enable_baxter.py"
-        output="screen"/>
+        output="screen"/> -->
 
     <node name="joint_trajectory_action_server" 
         pkg="baxter_interface" 

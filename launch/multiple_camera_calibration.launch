@@ -1,0 +1,17 @@
+<launch>
+    
+    <include
+        file="$(find liam_neeson)/launch/ar_transform.launch">
+        <arg name="output_frame" value="camera_link" />
+        <arg name="cam_image_topic" value="/camera/rgb/image_raw" />
+        <arg name="cam_info_topic" value="/camera/rgb/camera_info" />
+    </include>
+
+    <include
+        file="$(find liam_neeson)/launch/ar_transform.launch">
+        <arg name="output_frame" value="left_hand_camera" />
+        <arg name="cam_image_topic" value="/cameras/left_hand_camera/image" />
+        <arg name="cam_info_topic" value="/cameras/left_hand_camera/camera_info" />
+    </include>
+
+</launch>

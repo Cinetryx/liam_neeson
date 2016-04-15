@@ -1,0 +1,22 @@
+<launch>
+
+    <!-- Detects words from microphone that match phrase lsit, publishes String message to /pocketsphinx_recognizer/output topic -->
+
+    <!-- Use " pacmd list-sources " to find mic name-->
+    <arg name="mic" default="alsa_input.pci-0000_00_1b.0.analog-stereo" />
+
+
+	<node name="pocketsphinx_recognizer" pkg="pocketsphinx" type="recognizer.py" output="screen" >
+		<param name="mic_name" value="$(arg mic)"/>
+		<param name="lm" value="$(find liam_neeson)/launch/obj_pocketsphinx.lm"/>
+		<param name="dict" value="$(find liam_neeson)/launch/obj_pocketsphinx.dic"/>
+	</node>
+
+    <node pkg="liam_neeson"
+            type="pocketsphinx_controller.py"
+            output="screen"
+            name="pocketsphinx_controller"/>
+            
+</launch>
+
+

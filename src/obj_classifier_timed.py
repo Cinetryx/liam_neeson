@@ -10,6 +10,7 @@ from sensor_msgs.msg import Image, CameraInfo
 from math import sqrt
 from hsv_histogram import HistogramTest
 from obj_subscriber import Subscriber
+from copy import copy
 
 class Classifier:
     def __init__(self,cascade,cvbridge,ref_img):
@@ -35,7 +36,7 @@ class Classifier:
         combined_candidates=np.empty((0,4))
         combined_occurrences = []
         for i in range(max_iterations):
-            frame = self.get_feed()
+            frame = self.get_feed()[0]
             # cv2.imshow('Classifier',frame)
             # key = cv2.waitKey(0) & 0xFF
             (candidates, occurrences) = self.initial_search(frame)
@@ -53,7 +54,7 @@ class Classifier:
         # print combined_candidates, combined_occurrences
         combined_occurrences = self.scoring_combine(combined_candidates,combined_occurrences)
         (combined_candidates, combined_occurrences) = self.candidate_sort_filter(combined_candidates,combined_occurrences)
-        # frame = self.get_feed()
+        # frame = self.get_feed()[0]
         frame_disp = copy(frame)
         combined_candidates = np.int32(combined_candidates)
         # print combined_occurrences
@@ -62,30 +63,39 @@ class Classifier:
         (x1,y1,x2,y2)=combined_candidates[np.argmax(combined_occurrences)]
         cv2.rectangle(frame_disp, (x1, y1), (x1+x2, y1+y2), (0, 255, 0), 2) #assuming object hasn't moved significantly
         
-        cv2.imshow('Classifier',frame_disp)
-        key = cv2.waitKey(1) & 0xFF
+        # cv2.imshow('Classifier',frame_disp)
+        # key = cv2.waitKey(1) & 0xFF
+        # cv2.destroyAllWindows()
         return (np.array([x1,y1,x2,y2])) #return best rectangle! 
 
     def seg_search(self,seg_rect): #given rect coord potentially containing object, returns rect around object if found
-        frame = self.get_feed()
+        frame = self.get_feed()[0]
         x1,y1,x2,y2 = seg_rect
-        (candidates,candidates_counts) = self.initial_search(frame[y1:(y1+y2),x1:(x1+x2)])
+        seg = frame[y1:(y1+y2),x1:(x1+x2)]
+        # cv2.imshow("blah",seg)
+        # cv2.waitKey(10)
+        (candidates,candidates_counts) = self.initial_search(seg)  #checks segment of the original image within the rect
         if (len(candidates_counts)>0):
             rect = candidates[np.argmax(candidates_counts)] #takes the most likely candidate
-            rect[0] = rect[0]+x1
+            rect[0] = rect[0]+x1    #corrects the coordinates to correspond to original image
             rect[1] = rect[1]+y1
             return rect
         else:
+
             print "seg_search: Object lost"
             return np.empty((0,4))
-            
+
     def get_feed(self):
         # data = rospy.wait_for_message("/camera/rgb/image_raw", Image, timeout=None)
         self.subscriber.update_feed()
-        data = self.subscriber.rgb_img
-        frame = self.cvbridge.imgmsg_to_cv2(data, "bgr8")
-        frame = np.array(frame, dtype=np.uint8)
-        return frame
+        rgb_data = self.subscriber.rgb_img
+        rgb_frame = self.cvbridge.imgmsg_to_cv2(rgb_data, "bgr8")
+        rgb_frame = np.array(rgb_frame, dtype=np.uint8)
+
+        depth_data = self.subscriber.depth_img
+        depth_frame = self.cvbridge.imgmsg_to_cv2(depth_data)
+        depth_frame = np.array(depth_frame, dtype=np.float32)
+        return rgb_frame, depth_frame
 
     def initial_search(self,original_image):
         #print "Searching for object; don't move." Display image being processed
@@ -97,8 +107,8 @@ class Classifier:
         #repeat: perform initial detect for increasing guessed sizes (all resized to ...120px...or 50px?)
         #take all serious candidates, combine like ones, pass to depth filter, seek cluster of similar values.
         #(If desired) take histogram of these pixels' colors, see if it's on par with histogram of trained data.
-        print "Searching for object. Don't move!"
-        cv2.imshow('Classifier',original_image)
+        
+        # cv2.imshow('Classifier',original_image)
         shape=self.cv_size(original_image)
         candidates=np.empty((0,4),int)
         candidates_counts=[]
@@ -146,8 +156,8 @@ class Classifier:
             (x1,y1,x2,y2)=candidates[np.argmax(candidates_counts)]
             cv2.rectangle(original_image, (x1, y1), (x1+x2, y1+y2), (0, 255, 0), 2)
             # cv2.rectangle(input_image, (rect[0], rect[1]), (rect[0]+rect[2], rect[1]+rect[3]), (255, 0, 0), 2)
-            cv2.imshow('Classifier',original_image)
-            key = cv2.waitKey(500) & 0xFF
+            # cv2.imshow('Classifier',original_image)
+            # key = cv2.waitKey(50) & 0xFF
         
             #return only candidates within top 25% score of this size class [?]
             (candidates,candidates_counts) = self.candidate_sort_filter(candidates,candidates_counts)
