@@ -1,0 +1,28 @@
+<launch>
+
+<arg name="marker_size"          default="12.6" />
+<arg name="max_new_marker_error" default="0.05" />
+<arg name="max_track_error"      default="0.05" />
+
+<arg name="c1_image_topic"      default="/camera/rgb/image_raw" />
+<arg name="c1_info_topic"       default="/camera/rgb/camera_info" />
+<arg name="c1_output_frame"     default="camera_link" />
+
+<arg name="c2_image_topic"      default="/cameras/left_hand_camera/image" />
+<arg name="c2_info_topic"       default="/cameras/left_hand_camera/camera_info" />
+<arg name="c2_output_frame"     default="left_hand_camera" />
+
+<arg name="marker_frame"        default="ar_marker_0" />
+
+<arg name="c1"                  default="false" />
+<arg name="c2"                  default="false" />
+
+
+
+<node if="$(arg c1)"
+    name="c1_ar_track_alvar" pkg="ar_track_alvar" type="individualMarkersNoKinect" respawn="false" output="log" args="$(arg marker_size) $(arg max_new_marker_error) $(arg max_track_error) $(arg c1_image_topic) $(arg c1_info_topic) $(arg c1_output_frame)" />
+
+<node if="$(arg c2)"
+    name="c2_ar_track_alvar" pkg="ar_track_alvar" type="individualMarkersNoKinect" respawn="false" output="log" args="$(arg marker_size) $(arg max_new_marker_error) $(arg max_track_error) $(arg c2_image_topic) $(arg c2_info_topic) $(arg c2_output_frame)" />
+
+</launch>

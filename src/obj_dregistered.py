@@ -314,13 +314,12 @@ def cleanup():
 
 def publish_xyz(pub, xyz):
     #given publisher and 3-element array of xyz real-world coordinates, publishes coordinates as Point message
-    print "\nPoint: ", xyz
+    # print "\nPoint: ", xyz
     x,y,z = xyz #get latest point found
     point_msg=Point()
 
-    #temporarily increased displacement in x and y to exaggerate motion
-    point_msg.x=x*3
-    point_msg.y=y*3 +1
+    point_msg.x=x
+    point_msg.y=y
     point_msg.z=z
     pub.publish(point_msg)
 

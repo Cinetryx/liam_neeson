@@ -27,8 +27,8 @@ class Controller:
         for i in range(100):
             try:
                 print "===== Searching for camera transform"
-                t=self.tt.getLatestCommonTime("/base","/camera_link1")
-                (trans,orien) = self.tt.lookupTransform("/base","/camera_link1",t)  #orn is presumably quaternion
+                t=self.tt.getLatestCommonTime("base","camera_link1")
+                (trans,orien) = self.tt.lookupTransform("base","camera_link1",t)  #orn is presumably quaternion
                 euler = tf.transformations.euler_from_quaternion(orien)
                 self.camera_trans=tf.transformations.compose_matrix(angles=euler, translate=trans)
                 print "===== Successfully obtained camera transform."

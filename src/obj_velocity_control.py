@@ -140,7 +140,7 @@ class Limb_Command:
         #keep joints close to previous values
         curr_pos_error = np.sum((pos_array - self.curr_jts)**2)
         #assign weights to each error [?]
-        w2 = 2 #we really prioritize pointer accuracy
+        w2 = 5 #we really prioritize pointer accuracy
         w1=w3=w4 = 1
         total_error = w1*z_error + w2*pointer_error + w3*jt_limit_error + w4*curr_pos_error
         # print "z_error", z_error

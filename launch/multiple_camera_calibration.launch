@@ -1,17 +1,47 @@
 <launch>
     
-    <include
+    <arg name="marker_size"          default="12.6" />
+    <arg name="max_new_marker_error" default="0.05" />
+    <arg name="max_track_error"      default="0.05" />
+
+    <arg name="c1_image_topic"      default="/camera/rgb/image_raw" />
+    <arg name="c1_info_topic"       default="/camera/rgb/camera_info" />
+    <arg name="c1_output_frame"     default="camera_link" />
+
+    <arg name="c2_image_topic"      default="/cameras/left_hand_camera/image" />
+    <arg name="c2_info_topic"       default="/cameras/left_hand_camera/camera_info" />
+    <arg name="c2_output_frame"     default="left_hand_camera" />
+    
+    <arg name="marker_frame"        default="ar_marker_0" /> <!-- number corresponds to particular AR code chosen -->
+
+
+    <!-- <node pkg="liam_neeson"
+        type="baxter_display_left.py"
+        output="screen"
+        name="obj_dregistered"
+        args="$(find liam_neeson)/src/classifier_data/$(arg classifier_img1) $(find liam_neeson)/src/classifier_data/$(arg classifier_xml1)"/>
+ -->
+<!--     <include
         file="$(find liam_neeson)/launch/ar_transform.launch">
         <arg name="output_frame" value="camera_link" />
         <arg name="cam_image_topic" value="/camera/rgb/image_raw" />
         <arg name="cam_info_topic" value="/camera/rgb/camera_info" />
-    </include>
+    </include> -->
 
-    <include
+
+    <!-- name="$(anon ar_track_alvar)" -->
+
+    <node pkg="liam_neeson"
+        type="multiple_camera_calibration.py"
+        output="screen"
+        name="multiple_camera_calibration"
+        args="$(arg c1_output_frame) $(arg c1_image_topic) $(arg c1_info_topic) $(arg c2_output_frame) $(arg c2_image_topic) $(arg c2_info_topic) $(arg marker_frame) $(arg marker_size)"/>
+
+    <!-- <include
         file="$(find liam_neeson)/launch/ar_transform.launch">
         <arg name="output_frame" value="left_hand_camera" />
         <arg name="cam_image_topic" value="/cameras/left_hand_camera/image" />
         <arg name="cam_info_topic" value="/cameras/left_hand_camera/camera_info" />
-    </include>
+    </include> -->
 
 </launch>

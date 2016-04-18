@@ -13,6 +13,11 @@
     <!-- Adjust settings with tool: alsamixer-->
     <arg name="mic" default="alsa_input.pci-0000_00_1b.0.analog-stereo" />
 
+
+    <arg name="static" default="true" />
+        <!-- OTHERWISE, RUN MULTIPLE CAMERA CALIBRATION TO COMPLETION BEFOREHAND -->
+        <!-- roslaunch openni_launch openni.launch depth_registration:=true rgb_camera_info_url:=file:///home/hongalan/skelws/src/liam_neeson/ost.yaml -->
+        <!-- roslaunch liam_neeson multiple_camera_calibration.launch -->
     <arg name="bag" default="false" />
     <arg name="rviz" default="false" />
     <arg name="update_gripper" default="true" />
@@ -20,14 +25,15 @@
     <arg name="bag_file" default="maruchan_train2.bag" />
     <!-- <arg name="camera_trans" default="1. 0. 0. -0.5, 0.5, -0.5, 0.5"/> --> <!-- Adjusted from camera 
     frame -->
-    <arg name="camera_trans" default="1. 0. 0. -0.5, 0.5, -0.5, 0.5"/>
+    <arg name="camera_trans" default="0.5 0. 0. -0.5, 0.5, -0.5, 0.5"/>
     <arg name="classifier_xml1" default="maruchan_asus15.xml"/>
     <arg name="classifier_img1" default="maruchan_sample.png"/>
 
 
     <!-- <param name="camera_info_url" value="$(find liam_neeson)/ost.yaml" -->
 
-    <node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="$(arg camera_trans) base camera_link1 1000" />
+    <node if="$(arg static)"
+        pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="$(arg camera_trans) base camera_link1 1000" />
 
     <include
         file="$(find liam_neeson)/launch/baxter_setup.launch">
@@ -47,7 +53,7 @@
         type="obj_dregistered.py"
         output="screen"
         name="obj_dregistered"
-        args="$(find liam_neeson)/src/classifier_data/$(arg classifier_img1) $(find liam_neeson)/src/classifier_data/$(arg classifier_xml1)"/>
+        args="$(find liam_neeson)/src/classifier_data/$(arg classifier_img1) $(find liam_neeson)/src/classifier_data/$(arg classifier_xml1)" />
 
     <node if="$(arg display)"
         pkg="liam_neeson"
@@ -58,6 +64,7 @@
     <include if="$(arg openni)" 
         file="$(find openni_launch)/launch/openni.launch" >
         <arg name="depth_registration" value="true" />
+        <arg name="rgb_camera_info_url" value="file://$(find liam_neeson)/ost.yaml" />
     </include>
 
 
@@ -68,6 +75,6 @@
     
 
     <node if="$(arg bag)"
-        pkg="rosbag" type="play" name="rosbag" args="-l $(find liam_neeson)/bag/$(arg bag_file)"/>
+        pkg="rosbag" type="play" name="rosbag" args="-l $(find liam_neeson)/bag/$(arg bag_file)" />
 
 </launch>
