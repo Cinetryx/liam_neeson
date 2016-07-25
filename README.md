@@ -3,7 +3,7 @@
 
 Owner: Alan Hong, Northwestern University, MSR 2016
 
-Project write-up available here: [ *site currently in development* ]
+Project write-up [available here](https://github.com/hongalan/liam_neeson/blob/master/writeup.md).
 
 ~~~
 Table of Contents
