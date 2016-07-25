@@ -3,7 +3,7 @@
 
 Owner: Alan Hong, Northwestern University, MSR 2016
 
-Project overview available here: [ *site currently in development* ]
+Project write-up available here: [ *site currently in development* ]
 
 ~~~
 Table of Contents
@@ -11,7 +11,6 @@ Table of Contents
 2. ROS Package Dependencies
 3. Launch Files
 4. Notes on Package Usage
-5. Ongoing Development
 ~~~
 
 ### 1. Package Description
@@ -49,19 +48,3 @@ In order to successfully run the launch files, you must have the following sets 
 ### 4. Notes on Package Usage
 
 - openni.launch will start multiple nodes under the `/camera` namespace
-  
-
-
-### 5. Ongoing Development
-
-*as of March 19, 2016*
-
--Implementing object tracking, to much more quickly determine position of object once its initial position is determined.
-
--Velocity control of robot for more continuous operation
-
--Interactive user interface (including voice commands)
-
--Include set of trained classifiers and reference images for variety of objects
-
--Determine camera position and orientation relative to robot through transforms to a common object.
