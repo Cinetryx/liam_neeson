@@ -65,15 +65,6 @@ class Seeker():
                 self.vel = np.array([np.zeros(3)])
                 return
 
-        disp_img = self.classifier.subscriber.rgb_img
-        disp_img = self.cvbridge.imgmsg_to_cv2(disp_img, "bgr8")
-        disp_img = np.array(disp_img, dtype=np.uint8)
-        # print "rect: ",rect
-        (x1,y1,x2,y2)=np.int32(rect[0])
-        cv2.rectangle(disp_img, (x1, y1), (x1+x2, y1+y2), (0, 255, 0), 2)
-        cv2.imshow("Seek",disp_img)
-        cv2.waitKey(1)
-
         xyz = self.get_xyz(rect)
 
         if len(xyz) > 0:
@@ -92,7 +83,21 @@ class Seeker():
                 self.rect = np.array([np.empty((0,4))])
                 self.xyz = np.array([np.empty((0,3))])
                 self.vel = np.array([np.zeros(3)])
-                return
+
+
+        #displaying feed
+        disp_img = self.classifier.subscriber.rgb_img
+        disp_img = self.cvbridge.imgmsg_to_cv2(disp_img, "bgr8")
+        disp_img = np.array(disp_img, dtype=np.uint8)
+        #overlaying result if available
+        if len(rect)>0:
+            # print "rect: ",rect
+            (x1,y1,x2,y2)=np.int32(rect[0])
+            cv2.rectangle(disp_img, (x1, y1), (x1+x2, y1+y2), (0, 255, 0), 2)
+            text = "X: %.1f Y: %.1f Z: %.1f" %(xyz[0],xyz[1],xyz[2])
+            cv2.putText(disp_img,text, (x1-10,y1-10),cv2.FONT_HERSHEY_PLAIN,1,(0, 255, 0),1)
+        cv2.imshow("Seek",disp_img)
+        cv2.waitKey(1)
 
     def calc_avg(self):
         avg_rect = np.zeros(4)
